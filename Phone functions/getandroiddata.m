@@ -1,15 +1,48 @@
-function [t, acc, om, mag, gps, or,lin_acc,grav,press]=getandroiddata(phonelistener)
-if verLessThan('matlab','9.12')
-        data = fscanf(phonelistener);
-else
+function [t, acc, gyro, mag, gps, orientation,lin_acc,grav,press]=getandroiddata(phonelistener)
+% Brief: 从UDP监听器获取传感器数据
+% Details:
+%    目前在安卓上无法返回得到 gps, orientation,lin_acc,grav,press这些参数?!
+%
+% Inputs:
+%    phonelistener - [1,1] size,[UDPPort] type,see udpport build-in
+%    function return object.
+% 
+% Outputs:
+%    t - [1,1] size,[datetime] type,Description
+%    acc - [1,3] size,[double] type,Description
+%    om - [1,3] size,[double] type,Description
+%    mag - [m,n] size,[double] type,Description
+%    gps - [m,n] size,[double] type,Description
+%    or - [m,n] size,[double] type,Description
+%    lin_acc - [m,n] size,[double] type,Description
+%    grav - [m,n] size,[double] type,Description
+%    press - [m,n] size,[double] type,Description
+% 
+% Example: 
+%    None
+% 
+% See also: None
 
+% Author:                          cuixingxing
+% Email:                           cuixingxing150@gmail.com
+% Created:                         30-Aug-2024 14:58:13
+% Version history revision notes:
+%                                  None
+% Implementation In Matlab R2024a
+% Copyright © 2024 TheMatrix.All Rights Reserved.
+%
+
+try
     data=read(phonelistener,1,'string');
     try
-    data=data.Data{:};
+        data=data.Data{:};
     catch
         data=[];
     end
+catch 
+    data = fscanf(phonelistener); % matlab release older than R2020b
 end
+
 
 %     acc=3;
 %     gyro=4;
@@ -23,10 +56,10 @@ end
 
 t       = nan;
 acc     = nan(1,3);
-om      = nan(1,3);
+gyro      = nan(1,3);
 mag     = nan(1,3);
 gps     = nan(1,3);
-or      = nan(1,3);
+orientation      = nan(1,3);
 lin_acc = nan(1,3);
 grav    = nan(1,3);
 press   = nan;
@@ -56,7 +89,7 @@ end
 
 if ~isempty(ind_om) && length(find(sepp>ind_om(1)))>=4
     ind_om = find(sepp>ind_om,1,'first');
-    om     = [str2double(data(sepp(ind_om)+1:sepp(ind_om+1)-1)) str2double(data(sepp(ind_om+1)+1:sepp(ind_om+2)-1)) str2double(data(sepp(ind_om+2)+1:sepp(ind_om+3)-1))   ]  ;
+    gyro     = [str2double(data(sepp(ind_om)+1:sepp(ind_om+1)-1)) str2double(data(sepp(ind_om+1)+1:sepp(ind_om+2)-1)) str2double(data(sepp(ind_om+2)+1:sepp(ind_om+3)-1))   ]  ;
 end
 if ~isempty(ind_mag)&& length(find(sepp>ind_mag(1)))>=4
     ind_mag = find(sepp>ind_mag,1,'first');
@@ -70,7 +103,7 @@ end
 
 if ~isempty(ind_or)&& length(find(sepp>ind_or(1)))>=4
     ind_or = find(sepp>ind_or,1,'first');
-    or     = [str2double(data(sepp(ind_or)+1:sepp(ind_or+1)-1)) str2double(data(sepp(ind_or+1)+1:sepp(ind_or+2)-1)) str2double(data(sepp(ind_or+2)+1:sepp(ind_or+3)-1))   ]  ;
+    orientation     = [str2double(data(sepp(ind_or)+1:sepp(ind_or+1)-1)) str2double(data(sepp(ind_or+1)+1:sepp(ind_or+2)-1)) str2double(data(sepp(ind_or+2)+1:sepp(ind_or+3)-1))   ]  ;
 end
 
 if ~isempty(ind_linacc)&& length(find(sepp>ind_linacc))>=4

@@ -20,13 +20,8 @@
  clear ; close all; clc
 addpath('Phone functions');
 
-%% general setting
-N_sample        = 1000; % how many samples to collect
-
 %% create phone listener object: Android
-IpAdress      = '192'; % in case of android, this is the IP adress of the computer, or the first
-% three digits of it. 
-phonelistener   = makeandroidlistener(IpAdress);
+phonelistener   = makeandroidlistener();
 
 %% create phone listener object: Apple
 % IpAdress      = '192.168.1.67'; % in case of apple, this is the IP adress
@@ -34,27 +29,47 @@ phonelistener   = makeandroidlistener(IpAdress);
 % Port          = 57100;
 % phonelistener = makeapplelistener(IpAdress,Port);
 %% Initialise empty figure and empty variables
-figure
-h_plot  = plot(NaN,[NaN NaN NaN]);
-t       = NaN*ones(N_sample,1);
-acc     = NaN*ones(N_sample,3);
+fig = figure(Name="mobile stream sensor data");
+ax = axes(fig);
+grid(ax,"on");
+an1 = animatedline(ax,NaT,NaN,"Color","red","LineWidth",2,'MaximumNumPoints',1000);
+an2 = animatedline(ax,NaT,NaN,"Color","blue","LineWidth",2,'MaximumNumPoints',1000);
+an3 = animatedline(ax,NaT,NaN,"Color","green","LineWidth",2,'MaximumNumPoints',1000);
+legend(ax,[an1,an2,an3],["x","y","z"])
+
+fig2 = figure(Name="pose plot");
+ax2 = axes(fig2);
+patch = poseplot(ax2);
+xlabel("North-x (m)")
+ylabel("East-y (m)")
+zlabel("Down-z (m)");
 
 %% Loop to start data collection
-for i_time = 1:N_sample
+while(isvalid(fig))
     
     %% Apple: sensorlog
-    %    [t(i_time,:), acc(i_time,:)]   = getappledata(phonelistener);
+    % [t,acc]    = getappledata(phonelistener);
     
     %% Android: IMU+GPS Stream
-    [t(i_time,:), acc(i_time,:)]        = getandroiddata(phonelistener);
+    [t, acc, gyro, mag, gps, orientation,lin_acc,grav,press]= getandroiddata(phonelistener);
+   
+    if ~any(isnan(orientation))
+        % 使用 eul2quat 函数
+        orientation = deg2rad(orientation);
+        yaw = orientation(3);
+        pitch = orientation(2);
+        roll = orientation(1);
+        q = eul2quat([yaw, pitch, roll] * (pi/180), 'ZYX'); % 将角度转换为弧度
+        set(patch,Orientation=q);
+    end
     
     %% plot here
-    set(h_plot(1),'Xdata',t(~isnan(acc(:,1))),'Ydata',acc(~isnan(acc(:,1)),1))
-    set(h_plot(2),'Xdata',t(~isnan(acc(:,1))),'Ydata',acc(~isnan(acc(:,1)),2))
-    set(h_plot(3),'Xdata',t(~isnan(acc(:,1))),'Ydata',acc(~isnan(acc(:,1)),3))
-    pause(0.001)
+    addpoints(an1,datetime("now"),acc(1));
+    addpoints(an2,datetime("now"),acc(2));
+    addpoints(an3,datetime("now"),acc(3));
     
-    drawnow
+
+    drawnow limitrate
 end
 %% Closing and deleting connections (keep these in your program!)
 fclose(phonelistener);%Closing UDP communication
