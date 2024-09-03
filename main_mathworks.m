@@ -40,7 +40,7 @@ while(isvalid(fig))
     pitch = orientation(2);
     roll = orientation(3);
     rotm = eul2rotm([yaw, pitch, roll] * (pi/180), 'ZYX'); % 将角度转换为弧度
-    rotm = rotx(-180)*rotz(-90)*rotm;
+    rotm = roty(-180)*rotz(-90)*rotm; % 2024.9.2由rotx(-180)改为了roty(-180),待传感器弄好后验证正确性！？
     % q = eul2quat([yaw, pitch, roll] * (pi/180), 'ZXY'); % 将角度转换为弧度
     set(patch,Orientation=rotm);
     
