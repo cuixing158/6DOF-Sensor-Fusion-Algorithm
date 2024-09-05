@@ -55,4 +55,22 @@ while(isvalid(fig))
     drawnow limitrate
 end
 
+function R = rotx(deg)
+% 绕X轴的旋转矩阵
+R = [1,0,0;
+    0,cosd(deg),-sind(deg);
+    0,sind(deg),cosd(deg)];
+end
 
+function R = roty(angleY)
+% 绕Y轴的旋转矩阵
+R = [cosd(angleY), 0, sind(angleY);
+    0, 1, 0;
+    -sind(angleY), 0, cosd(angleY)];
+end
+function R = rotz(angleZ)
+% 绕Z轴的旋转矩阵
+R = [cosd(angleZ),-sind(angleZ),0;
+    sind(angleZ),cosd(angleZ),0;
+    0,0,1];
+end
