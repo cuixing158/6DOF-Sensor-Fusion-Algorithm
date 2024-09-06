@@ -1,6 +1,7 @@
 %% 使用MATLAB官方APP实时流传感器传输数据
 % 不要传入手机实时图像，太卡
 %
+
 if ~exist("m","var")
     m= mobiledev;
 end
@@ -25,6 +26,7 @@ legend(ax,[an1,an2,an3],["x","y","z"])
 fig2 = figure(Name="pose plot");
 nexttile;
 ax2 = gca;
+
 patch = poseplot(ax2);
 xlabel("North-x (m)")
 ylabel("East-y (m)")
