@@ -1,6 +1,9 @@
 
 # StreamPhoneData
 
+加入了AHRS位姿解算算法，Mathworks官方示例代码<https://ww2.mathworks.cn/matlabcentral/fileexchange/48954-matlab-to-iphone-made-easy-example-files>，仿真验证手机3轴加速度+3轴角速度如何稳定输出手机姿态角！并与`main_mathworks.m`的MATLAB官方APP输出的姿态方位角进行对比！
+
+---
 feel free to cite this code using the doi;
 [![DOI](https://zenodo.org/badge/90114835.svg)](https://zenodo.org/badge/latestdoi/90114835)
 
@@ -28,3 +31,8 @@ Port=61904;
 Change these values to the values you see in the main screen of the sensorlog app, bottom right (it reads as 192.168.1.72: 61904) on your phone. Next, you can click the “play” button in the lower left of the screen. Now you can run the Matlab script. You should see the accelerometer from your phone in a Matlab graph.
 
 - If no data do appear in the figure, there is probably a problem with your connection. Press Ctrl+C to break the program, turn of any virus scanning or security software and turn off the built in firewall of your operating system (for windows: <https://support.microsoft.com/en-us/help/17228/windows-protect-my-pc-from-viruses>), (for mac: <http://www.wikihow.com/Turn-off-Mac-Firewall>), and try again.
+
+## References
+
+1. <https://ww2.mathworks.cn/matlabcentral/fileexchange?q=AHRS>
+1. <https://ww2.mathworks.cn/matlabcentral/fileexchange/63149-virtual-reality-drawing-with-android-device?s_tid=srchtitle>

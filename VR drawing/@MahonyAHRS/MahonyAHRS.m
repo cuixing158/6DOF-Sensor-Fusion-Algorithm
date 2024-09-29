@@ -28,9 +28,10 @@ classdef MahonyAHRS < handle
                 elseif  strcmp(varargin{i}, 'Quaternion'), obj.Quaternion = varargin{i+1};
                 elseif  strcmp(varargin{i}, 'Kp'), obj.Kp = varargin{i+1};
                 elseif  strcmp(varargin{i}, 'Ki'), obj.Ki = varargin{i+1};
-                else error('Invalid argument');
+                else
+                    error('Invalid argument');
                 end
-            end;
+            end
         end
         function obj = Update(obj, Gyroscope, Accelerometer, Magnetometer)
             q = obj.Quaternion; % short name local variable for readability
@@ -44,7 +45,9 @@ classdef MahonyAHRS < handle
             Magnetometer = Magnetometer / norm(Magnetometer);   % normalise magnitude
  
             % Reference direction of Earth's magnetic feild
-            h = quaternProd(q, quaternProd([0 Magnetometer], quaternConj(q)));
+            % h = quaternProd(q, quaternProd([0 Magnetometer], quaternConj(q)));
+            h = quaternion(q)*(quaternion([0,Magnetometer])*conj(quaternion(q)));
+            h = compact(h);
             b = [0 norm([h(2) h(3)]) 0 h(4)];
             
             % Estimated direction of gravity and magnetic field
@@ -67,7 +70,9 @@ classdef MahonyAHRS < handle
             Gyroscope = Gyroscope + obj.Kp * e + obj.Ki * obj.eInt;            
             
             % Compute rate of change of quaternion
-            qDot = 0.5 * quaternProd(q, [0 Gyroscope(1) Gyroscope(2) Gyroscope(3)]);
+            % qDot = 0.5 * quaternProd(q, [0 Gyroscope(1) Gyroscope(2) Gyroscope(3)]);
+            qDot = 0.5*quaterniion(q)*quaternion([0 Gyroscope(1) Gyroscope(2) Gyroscope(3)]);
+            qDot = compact(qDot);
  
             % Integrate to yield quaternion
             q = q + qDot * obj.SamplePeriod;
@@ -97,7 +102,9 @@ classdef MahonyAHRS < handle
             Gyroscope = Gyroscope + obj.Kp * e + obj.Ki * obj.eInt;            
             
             % Compute rate of change of quaternion
-            qDot = 0.5 * quaternProd(q, [0 Gyroscope(1) Gyroscope(2) Gyroscope(3)]);
+            % qDot = 0.5 * quaternProd(q, [0 Gyroscope(1) Gyroscope(2) Gyroscope(3)]);
+            qDot = 0.5*quaternion(q)*quaternion([0 Gyroscope(1) Gyroscope(2) Gyroscope(3)]);
+            qDot = compact(qDot);
  
             % Integrate to yield quaternion
             q = q + qDot * obj.SamplePeriod;

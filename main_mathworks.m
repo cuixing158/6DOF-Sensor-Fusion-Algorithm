@@ -2,13 +2,14 @@
 % 不要传入手机实时图像，太卡
 %
 
+addpath("VR drawing/");
 if ~exist("m","var")
     m= mobiledev;
 end
 
 %%
 m.Logging=1;
-m.SampleRate = 50;
+m.SampleRate = 10;
 m.AccelerationSensorEnabled = 1;
 m.AngularVelocitySensorEnabled = 1;
 m.OrientationSensorEnabled = 1;
@@ -27,28 +28,37 @@ fig2 = figure(Name="pose plot");
 nexttile;
 ax2 = gca;
 
-patch = poseplot(ax2);
+patch = poseplot(ax2,"ENU");
 xlabel("North-x (m)")
 ylabel("East-y (m)")
 zlabel("Down-z (m)");
 
+ahrs = MahonyAHRS('SamplePeriod', 1/m.SampleRate, 'Kp', 1);
 
 %% Loop to start data collection
 while(isvalid(fig)&&isvalid(fig2))
 
     % [acc,t] =accellog(m);
     acc = m.Acceleration;
+    gyr = m.AngularVelocity;
     orientation = m.Orientation;
 
-    if ~isempty(orientation)
-        % 使用 eul2quat 函数
-        yaw = orientation(1);
-        pitch = orientation(2);
-        roll = orientation(3);
-        rotm = eul2rotm([yaw, pitch, roll] * (pi/180), 'ZYX'); % 将角度转换为弧度
-        rotm = roty(-180)*rotz(-90)*rotm; % 2024.9.2由rotx(-180)改为了roty(-180),待传感器弄好后验证正确性！？
-        % q = eul2quat([yaw, pitch, roll] * (pi/180), 'ZXY'); % 将角度转换为弧度
-        set(patch,Orientation=rotm);
+    % if ~isempty(orientation)
+    %     % 使用 eul2quat 函数
+    %     yaw = orientation(1);
+    %     pitch = orientation(2);
+    %     roll = orientation(3);
+    %     rotm = eul2rotm([yaw, roll,pitch] * (pi/180), 'ZYX'); % 将角度转换为弧度
+    %     % rotm = roty(-180)*rotz(-90)*rotm; % 2024.9.2由rotx(-180)改为了roty(-180),待传感器弄好后验证正确性！？
+    %     % q = eul2quat([yaw, pitch, roll] * (pi/180), 'ZXY'); % 将角度转换为弧度
+    % 
+    %     set(patch,Orientation=rotm);
+    % end
+
+    if ~isempty(acc)&&~isempty(gyr)
+        ahrs.UpdateIMU(gyr , acc);
+        quat = ahrs.Quaternion;
+        set(patch,Orientation=quaternion(quat));
     end
 
     if ~isempty(acc)
