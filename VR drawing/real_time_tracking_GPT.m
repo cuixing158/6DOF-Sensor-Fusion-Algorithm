@@ -9,6 +9,7 @@ m.SampleRate = 1;
 m.AccelerationSensorEnabled = 1;
 m.AngularVelocitySensorEnabled = 1;
 m.Logging = 1;
+pause(10);
 
 % Plotting parameters
 SamplePlotFreq = 1;
@@ -16,7 +17,7 @@ AxisLength = 1;
 LimitRatio = 1;
 
 %% Figure initialization
-fig = figure('Name', '6DOF Animation');
+fig = figure('Name', '6DOF Animation',Position=[1,1,800,800]);
 ax = axes(fig);
 hold on; grid on; axis equal; view(3);
 xlabel('X'); ylabel('Y'); zlabel('Z');
@@ -51,14 +52,18 @@ while m.Logging == 1
     [g, ~] = angvellog(m);
     if isempty(ac) || isempty(g), continue; end
 
+    numAc = size(ac,1);
+    numG = size(g,1);
+
     %% Synchronize accelerometer and gyroscope data
-    if length(ac) < length(g)
-        gyr = zeros(size(ac));
-        gyr = g(1:length(ac), :);
+    if numAc < numG
+        acc = ac(1:numAc,:);
+        gyr = g(1:numAc, :);
     else
-        acc = zeros(size(g));
-        acc = ac(1:length(g), :);
+        acc = ac(1:numG, :);
+        gyr = g(1:numG,:);
     end
+    numsSample = min(numAc,numG);
 
     %% Process accelerometer data
     acc_mag = sqrt(sum(acc.^2, 2));  % Magnitude
@@ -71,16 +76,27 @@ while m.Logging == 1
     stationary = abs(acc_magFilt) < 0.1;
 
     %% Calculate orientation using AHRS
-    R = zeros(3, 3, length(g));
+    R = zeros(3, 3, numsSample);
     ahrs = MahonyAHRS('SamplePeriod', samplePeriod, 'Kp', 1);
-    for i = 1:length(g)
-        ahrs.UpdateIMU(g(i,:), acc(i,:));
+    for i = 1:numsSample
+        ahrs.UpdateIMU(gyr(i,:), acc(i,:));
         R(:,:,i) = quatern2rotMat(ahrs.Quaternion)';
     end
 
     %% Calculate tilt-compensated acceleration
-    tcAcc = squeeze(R) * reshape(acc', 3,[]);
-    linAcc = tcAcc - mean(tcAcc, 1);  % Remove gravity
+    
+    tcAcc = zeros(size(acc));  % accelerometer in Earth frame
+
+    for i = 1:length(acc)
+        tcAcc(i,:) = R(:,:,i) * acc(i,:)';
+    end
+    % subtracting gravity
+    linAcc = zeros(size(tcAcc));
+
+    for i= 1:length(tcAcc)
+        linAcc(i,:) = tcAcc(i,:) - mean(tcAcc,1);
+    end
+
 
     %% Linear velocity and position integration
     linVel = zeros(size(linAcc));

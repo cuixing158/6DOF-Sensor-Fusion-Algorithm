@@ -225,7 +225,7 @@ while(m.Logging == 1)
         [numSamples , ~] = size(p);
         p = p(1:SamplePlotFreq:numSamples, :);
         R = R(:, :, 1:SamplePlotFreq:numSamples);
-        j=0;
+        j=1;
         [numPlotSamples, dummy] = size(p);
     end
     hold off;
