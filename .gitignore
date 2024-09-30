@@ -54,7 +54,8 @@
 # 根据自己项目工程修改
 !*.pto
 !*.tif
-!/images/360panodemo.mp4
+!phoneMesh.stl
+!samplePhoneData.mat
 
 #忽略特殊文件，一般是当前目录下的文件(当前目录不能忽略)
 /utils/*.yml*

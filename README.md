@@ -1,9 +1,27 @@
 
 # StreamPhoneData
 
-加入了AHRS位姿解算算法，Mathworks官方示例代码<https://ww2.mathworks.cn/matlabcentral/fileexchange/48954-matlab-to-iphone-made-easy-example-files>，仿真验证手机3轴加速度+3轴角速度如何稳定输出手机姿态角！并与`main_mathworks.m`的MATLAB官方APP输出的姿态方位角进行对比！
+本仓库利用手机6轴（3轴加速度+3轴陀螺仪）来实时解算手机方位角！
 
----
+## 历史记录
+
+1. 2024.9.29 加入了低通butterworth滤波算法，即Mathworks官方示例代码<https://ww2.mathworks.cn/matlabcentral/fileexchange/48954-matlab-to-iphone-made-easy-example-files>，注意该代码只有利用3轴加速度滤波，并没有利用陀螺仪等传感器数据！
+1. 2024.9.30 应该使用`imufilter`对6轴传感器数据做姿态解算（理论上能得到roll,pitch,tilt,不能得到yaw，参考文献3），因为其融合了间接卡尔曼滤波器算法，而`ahrsfilter`则是对9轴传感器数据做姿态解算，根据参考文献3的PDF文档SensorFusionDatasheet.pdf如下所述：
+
+| Feature                          | Accel Only | Accel + Gyro | Accel + Mag | Accel + Mag + Gyro |  
+|----------------------------------|------------|--------------|-------------|---------------------|  
+| Filter type                      | Low pass   | Indirect  Kalman    |  Low pass(1)    | Indirect Kalman           |  
+| Roll / Pitch / Tilt in degrees   | Yes        | Yes          | Yes         | Yes                 |  
+| Yaw in degrees                   | No         | No           | Yes         | Yes                 |  
+| Angular rate in degrees/second   | virtual 2 axis | Yes      | virtual 3 axis | Yes                 |  
+| Compass heading (magnetic north) | No         | No           | Yes         | Yes                 |
+
+1. More precisely: a non-linear modified exponential low pass quaternion SLERP filter
+
+官方示例“Estimate Phone Orientation Using Sensor Fusion”较好，已经修改使用`imufilter`，初步也可以估计位姿，待继续调查使用。
+
+## 原始作者的
+
 feel free to cite this code using the doi;
 [![DOI](https://zenodo.org/badge/90114835.svg)](https://zenodo.org/badge/latestdoi/90114835)
 
@@ -36,3 +54,4 @@ Change these values to the values you see in the main screen of the sensorlog ap
 
 1. <https://ww2.mathworks.cn/matlabcentral/fileexchange?q=AHRS>
 1. <https://ww2.mathworks.cn/matlabcentral/fileexchange/63149-virtual-reality-drawing-with-android-device?s_tid=srchtitle>
+1. <https://github.com/memsindustrygroup/Open-Source-Sensor-Fusion/tree/master/docs>

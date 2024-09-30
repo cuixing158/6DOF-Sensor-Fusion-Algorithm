@@ -9,39 +9,79 @@ end
 
 %%
 m.Logging=1;
-m.SampleRate = 10;
+m.SampleRate = 20;
 m.AccelerationSensorEnabled = 1;
 m.AngularVelocitySensorEnabled = 1;
 m.OrientationSensorEnabled = 1;
 
 
 %% Initialise empty figure and empty variables
-fig = figure(Name="mobile stream sensor data");
-ax = axes(fig);
-grid(ax,"on");
-an1 = animatedline(ax,NaT,NaN,"Color","red","LineWidth",2,'MaximumNumPoints',1000);
-an2 = animatedline(ax,NaT,NaN,"Color","blue","LineWidth",2,'MaximumNumPoints',1000);
-an3 = animatedline(ax,NaT,NaN,"Color","green","LineWidth",2,'MaximumNumPoints',1000);
-legend(ax,[an1,an2,an3],["x","y","z"])
+fig = figure(Name="mobile stream sensor data",Position=[1     1   864   450]);
+tiledlayout(2,2)
 
-fig2 = figure(Name="pose plot");
-nexttile;
-ax2 = gca;
+ax1 = nexttile(1,[2,1]);
+grid(ax1,"on");
+an1 = animatedline(ax1,NaT,NaN,"Color","red","LineWidth",2,'MaximumNumPoints',1000);
+an2 = animatedline(ax1,NaT,NaN,"Color","blue","LineWidth",2,'MaximumNumPoints',1000);
+an3 = animatedline(ax1,NaT,NaN,"Color","green","LineWidth",2,'MaximumNumPoints',1000);
+legend(ax1,[an1,an2,an3],["x","y","z"])
 
-patch = poseplot(ax2,"ENU");
+ax2 = nexttile;
+patchBuildin = poseplot(ax2,"ENU");
 xlabel("North-x (m)")
 ylabel("East-y (m)")
 zlabel("Down-z (m)");
 
+ax3 = nexttile;
+patchButterworth = poseplot(ax3,"ENU");
+xlabel("North-x (m)")
+ylabel("East-y (m)")
+zlabel("Down-z (m)");
+
+% AHRS
 ahrs = MahonyAHRS('SamplePeriod', 1/m.SampleRate, 'Kp', 1);
 
+% Define filter parameters
+cutoff_freq = 3;  % Adjust cutoff frequency for desired smoothness
+filter_order = 2;   % Butterworth filter order
+[b, a] = butter(filter_order, (2 * cutoff_freq) / m.SampleRate, 'low');
+
+% Filter coefficients
+Fs = 100;  % Sampling Frequency (Hz)
+Fc = 2.5;    % Cutoff frequency (Hz);
+% Fc = 0.1;    % Cutoff frequency (Hz); This will make the movement in GLGravity very slow
+FilterOrder = 2;
+h = fdesign.lowpass('n,f3db', FilterOrder, Fc, Fs);
+DesignMethod = 'butter';
+Hd = design(h, DesignMethod);
+
+% 以下cuixingxing add
+reset_filter = false;
+Structure = 'Direct form II transposed';
+sosMatrix = Hd.sosMatrix;
+scaleValues = Hd.ScaleValues;
+SOSMatrix = sosMatrix;
+ScaleValues = scaleValues;
+enable_filter = true;
+
 %% Loop to start data collection
-while(isvalid(fig)&&isvalid(fig2))
+while(isvalid(fig))
 
     % [acc,t] =accellog(m);
     acc = m.Acceleration;
     gyr = m.AngularVelocity;
     orientation = m.Orientation;
+
+    % [gyros, t1] = angvellog(m);
+    % [accel,t2] = accellog(m);
+    % numsG = size(gyros,1);
+    % numsA = size(accel,1);
+    % numsam = min(numsG,numsA);
+    % if numsam<7 % 巴特沃斯滤波器滤波参数决定至少的样本个数
+    %     continue;
+    % end
+    % gyros = gyros(1:numsam,:);
+    % accel = accel(1:numsam,:);
 
     % if ~isempty(orientation)
     %     % 使用 eul2quat 函数
@@ -52,14 +92,25 @@ while(isvalid(fig)&&isvalid(fig2))
     %     % rotm = roty(-180)*rotz(-90)*rotm; % 2024.9.2由rotx(-180)改为了roty(-180),待传感器弄好后验证正确性！？
     %     % q = eul2quat([yaw, pitch, roll] * (pi/180), 'ZXY'); % 将角度转换为弧度
     % 
-    %     set(patch,Orientation=rotm);
+    %     set(patchBuildin,Orientation=rotm);
     % end
 
     if ~isempty(acc)&&~isempty(gyr)
-        ahrs.UpdateIMU(gyr , acc);
+        % Apply Butterworth filter to angular velocity (gyro data)
+        % gyr_filtered = filtfilt(b, a, gyros);
+        % acc_filtered = filtfilt(b,a,accel);
+        % x = acc(1);
+        % y = acc(2);
+        % z = acc(3);
+        % xyz_out = xyz_filter(x,y,z,reset_filter,Structure,SOSMatrix,ScaleValues,enable_filter);
+
+
+        % Use filtered data in the AHRS algorithm
+        ahrs.UpdateIMU(gyr, acc);
         quat = ahrs.Quaternion;
-        set(patch,Orientation=quaternion(quat));
+        set(patchButterworth, Orientation=quaternion(quat));
     end
+
 
     if ~isempty(acc)
         % plot here
