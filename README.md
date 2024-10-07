@@ -18,6 +18,12 @@
 
 1. More precisely: a non-linear modified exponential low pass quaternion SLERP filter
 
+**Accelerometer Plus Gyroscope**(摘录文献3，pdf描述)
+
+Using a gyroscope in addition to an accelerometer yields the ability to smoothly measure rotation in 3D space, although the system can only yield orientation to some random horizontal global frame of reference. That is, the system has no sense of magnetic north. Computation of yaw is not supported by this configuration.This configuration is commonly known as an Inertial Measurement Unit (IMU).
+
+![IMUFilter.jpg](images/IMUFilter.jpg)
+
 官方示例“Estimate Phone Orientation Using Sensor Fusion”较好，已经修改使用`imufilter`，初步也可以估计位姿，待继续调查使用。
 
 ## 原始作者的
