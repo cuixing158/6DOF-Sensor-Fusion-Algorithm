@@ -56,6 +56,8 @@
 !*.tif
 !phoneMesh.stl
 !samplePhoneData.mat
+!sensorlog_20241008_093637.mat
+!sensorlog_20241008_093729.mat
 
 #忽略特殊文件，一般是当前目录下的文件(当前目录不能忽略)
 /utils/*.yml*
