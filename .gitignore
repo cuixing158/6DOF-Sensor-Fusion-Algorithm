@@ -23,6 +23,9 @@
 !/utils/
 !/utils/**/
 
+!/simulinkModels/
+!/simulinkModels/**/
+
 # 增加指定扩展名文件#忽略特殊文件，一般是当前目录下的文件(当前目录不能忽略)
 !.gitignore
 !.gitattributes
@@ -40,6 +43,7 @@
 # matlab
 !*.m
 !*.mlx
+!*.slx
 
 # c/c++
 !*.cpp
