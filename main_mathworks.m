@@ -2,7 +2,7 @@
 % 不要传入手机实时图像，太卡
 %
 SampleRate = 100;
-matfile = 'sensorlog_20241008_093637.mat';
+matfile = 'data/sensorlog_20241008_093637.mat';
 [Accelerometer, Gyroscope, Magnetometer, EulerAngles] ...
     = exampleHelperProcessPhoneData(matfile);
 

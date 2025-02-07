@@ -1,5 +1,6 @@
 %% 姿态解算算法性能对比
-% 使用C++版本的Fusion数据在matlab中测试看看解算6DOF,9DOF的姿态对比，C++原始仓库地址：https://github.com/xioTechnologies/Fusion
+% 使用C++版本的Fusion数据在matlab中解算6DOF,9DOF的姿态对比，C++原始仓库地址：https://github.com/xioTechnologies/Fusion
+% 结论：与原始C++仓库计算出的结果在数值上趋势一致！
 
 sensorDataFile = "https://raw.githubusercontent.com/xioTechnologies/Fusion/refs/heads/main/Python/sensor_data.csv";
 
@@ -16,7 +17,8 @@ mag = imuData{:,8:10};% unit:uT
 sampleRate = size(timestamp,1)/timestamp(end);
 FUSE = imufilter(SampleRate=sampleRate,ReferenceFrame="NED");
 quat = FUSE(acc,gyro);
-eulerAnglesDegrees = eulerd(quat,"ZYX","frame");
+% eulerAnglesDegrees = eulerd(quat,"ZYX","frame");
+eulerAnglesDegrees = rad2deg(quat2eul(quat,"XYZ"));
 
 % plot
 figure;
