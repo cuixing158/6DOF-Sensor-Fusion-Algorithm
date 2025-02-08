@@ -1,7 +1,8 @@
 %% 姿态解算算法性能对比
+
 % 使用C++版本的Fusion数据在matlab中解算6DOF,9DOF的姿态对比，C++原始仓库地址：https://github.com/xioTechnologies/Fusion
 % 结论：与原始C++仓库计算出的结果在数值上趋势一致！
-
+%
 sensorDataFile = "https://raw.githubusercontent.com/xioTechnologies/Fusion/refs/heads/main/Python/sensor_data.csv";
 
 opts = detectImportOptions(sensorDataFile);

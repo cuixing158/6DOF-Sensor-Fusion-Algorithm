@@ -1,5 +1,5 @@
 
-# StreamPhoneData
+# 6DOF sensor fusion
 
 本仓库利用手机6轴（3轴加速度+3轴陀螺仪）来实时解算手机方位角！AHRS(Attitude and Heading Reference System)算法在MATLAB中实现非常广泛，参考了一些C/C++和MATLAB开源代码[^1],[^2]。
 
@@ -26,12 +26,10 @@ Using a gyroscope in addition to an accelerometer yields the ability to smoothly
 
 官方示例“Estimate Phone Orientation Using Sensor Fusion”较好，已经修改使用`imufilter`，初步也可以估计位姿，待继续调查使用。
 
-## Getting Started
-
-1. 下载MathWorks官方的[Matlab Mobile™](https://www.mathworks.com/products/matlab-mobile.html)软件并安装到手机上。
-
 > [!NOTE]
-> 注意，MathWorks官方的Matlab Mobile™软件是可以免费安装，但是实时传递传感器数据需要License。关于非官方开源的替代软件，可以参考[这里](https://github.com/SjoerdBruijn/StreamPhoneData)[^4]。
+>
+> 1. MathWorks官方的[Matlab Mobile™](https://www.mathworks.com/products/matlab-mobile.html)可以免费安装，但是实时传递传感器数据需要License。
+> 2. 关于非官方开源的替代软件，可以参考[这里](https://github.com/SjoerdBruijn/StreamPhoneData)[^4]。
 
 ## References
 

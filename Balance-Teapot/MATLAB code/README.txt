@@ -1,1 +1,0 @@
-Execute "run_demo.m" in MATLAB to start the demo.
